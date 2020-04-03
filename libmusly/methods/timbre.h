@@ -31,7 +31,6 @@ class timbre :
 MUSLY_METHOD_REGCLASS(timbre);
 
 private:
-
     const int sample_rate;
     const int window_size;
     const float hop;
@@ -39,10 +38,6 @@ private:
     const int ps_bins;
     const int mel_bins;
     const int mfcc_bins;
-
-    int track_mu;
-    int track_covar;
-    int track_logdet;
 
     powerspectrum ps;
     melspectrum mel;

@@ -26,6 +26,7 @@
 #include "programoptions.h"
 #include "fileiterator.h"
 #include "collectionfile.h"
+#include "../libmusly/method.h"
 
 musly_jukebox* mj = 0;
 
@@ -342,6 +343,65 @@ write_mirex_full(
 #ifdef _OPENMP
     }  // pragma omp parallel
 #endif
+
+    f.close();
+
+    return 0;
+}
+
+int
+write_vector_features(
+        std::vector<musly_track*>& tracks,
+        std::vector<std::string>& tracks_files,
+        const std::string& file,
+        const std::string& method)
+{
+    std::ofstream f;
+    f.open(file.c_str());
+    if (!f.is_open()) {
+        return -1;
+    }
+
+
+    f << "Write Vector Features per track to file. Works just for timbre - very messy solution. (Version: " << musly_version()
+      << "), Method: " <<
+      method << std::endl;
+
+    for (int i = 0; i < (int)tracks_files.size(); i++) {
+        f << i+1 << "\t" << tracks_files[i] << std::endl;
+    }
+
+    f << "Q/R";
+    for (int i = 0; i < (int)tracks_files.size(); i++) {
+        f << "\t" << i+1;
+    }
+    f << std::endl;
+
+    musly::method* m = reinterpret_cast<musly::method*>(mj->method);
+
+    int mu_n = 25;
+    int covar_n = (mu_n*(mu_n+1))/2;
+
+    for (int i = 0; i < (int)tracks.size(); i++) {
+        f << i+1;
+
+        float *mu = &tracks[i][m->track_mu];
+        float *covar = &tracks[i][m->track_covar];
+        float *covar_logdet = &tracks[i][m->track_logdet];
+
+        // write to file
+        f << '\t' << covar_logdet[0];
+
+        for (int k = 0; k < mu_n; k++) {
+            f << '\t' << mu[k];
+        }
+
+        for (int k = 0; k < covar_n; k++) {
+            f << '\t' << covar[k];
+        }
+
+        f << std::endl;
+    }
 
     f.close();
 
@@ -910,6 +970,19 @@ main(int argc, char *argv[])
                         << std::endl;
             } else {
                 std::cout << pl;
+            }
+        } else if (po.get_action() == "z") {
+            std::string file = po.get_option_str(po.get_action());
+
+            // print all info we have for tracks
+            std::cout << "Writing features vectors to file: " << file
+                      << std::endl;
+            ret = write_vector_features(tracks, tracks_files, file, cf.get_method());
+
+            if (ret == 0) {
+                std::cout << "Success." << std::endl;
+            } else {
+                std::cerr << "Failed to open file for writing." << std::endl;
             }
         }
 

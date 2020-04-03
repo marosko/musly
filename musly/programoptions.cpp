@@ -46,7 +46,7 @@ programoptions::programoptions(int argc, char *argv[],
     opterr = 0;
     while (1) {
 
-        int c = getopt(argc, argv, "v:ihc:Jj:a:x:Ee:f:Nn:k:ldm:s:p:");
+        int c = getopt(argc, argv, "v:ihc:Jj:a:x:z:Ee:f:Nn:k:ldm:s:p:");
         if (c == -1) {
             break;
         }
@@ -67,6 +67,7 @@ programoptions::programoptions(int argc, char *argv[],
         case 'i':
         case 'h':
         case 'a':
+        case 'z':
         case 'n':
         case 'e':
         case 'l':

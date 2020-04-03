@@ -69,6 +69,11 @@ protected:
             int num_floats);
 
 public:
+
+    int track_mu;
+    int track_covar;
+    int track_logdet;
+
     method();
     virtual ~method();
 
